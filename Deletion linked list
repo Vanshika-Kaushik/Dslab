@@ -1,0 +1,114 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node {
+    int data;
+    struct Node* next;
+};
+
+// This function prints contents of linked list starting
+// from the given node
+void printList(struct Node* n) {
+    while (n != NULL) {
+        printf(" %d ", n->data);
+        n = n->next;
+    }
+}
+
+// Function to delete the first node
+void deletefirst(struct Node** head) {
+    if (*head != NULL) {
+        struct Node* temp = *head;
+        *head = (*head)->next;
+        free(temp);
+    }
+}
+
+// Function to delete the last node
+void deletelast(struct Node* head) {
+    if (head == NULL) return;
+
+    struct Node* temp = head;
+    // If there is only one node
+    if (temp->next == NULL) {
+        free(temp);
+        head = NULL;
+        return;
+    }
+    // Traverse the list until the second last node
+    while (temp->next != NULL && temp->next->next != NULL) {
+        temp = temp->next;
+    }
+    // Free the last node
+    free(temp->next);
+    temp->next = NULL;
+}
+
+// Function to delete a node at a specific position
+void deletemiddle(struct Node** head, int pos) {
+    if (*head == NULL || pos <= 0) return;
+
+    struct Node* temp = *head;
+    // If position is 1, we delete the first node
+    if (pos == 1) {
+        *head = temp->next;
+        free(temp);
+        return;
+    }
+
+    // Traverse to the node just before the one to be deleted
+    for (int i = 1; temp != NULL && i < pos - 1; i++) {
+        temp = temp->next;
+    }
+
+    if (temp == NULL || temp->next == NULL) return;
+
+    // Now delete the node
+    struct Node* nodeToDelete = temp->next;
+    temp->next = temp->next->next;
+    free(nodeToDelete);
+}
+
+int main() {
+    struct Node* head = NULL;
+    struct Node* second = NULL;
+    struct Node* third = NULL;
+
+    // allocate 3 nodes in the heap
+    head = (struct Node*)malloc(sizeof(struct Node));
+    second = (struct Node*)malloc(sizeof(struct Node));
+    third = (struct Node*)malloc(sizeof(struct Node));
+
+    head->data = 1; // assign data in first node
+    head->next = second; // Link first node with second
+
+    second->data = 2; // assign data to second node
+    second->next = third;
+
+    third->data = 3; // assign data to third node
+    third->next = NULL;
+
+    // Print the list
+    printf("Original List:");
+    printList(head);
+
+    // Delete the first node
+    deletefirst(&head);
+    printf("\nList after deleting the first node:");
+    printList(head);
+
+    // Delete the last node
+    deletelast(head);
+    printf("\nList after deleting the last node:");
+    printList(head);
+
+    // Delete the node at position 1 (middle in this case)
+    deletemiddle(&head, 1);
+    printf("\nList after deleting the node at position 1:");
+    printList(head);
+
+    // Free the remaining nodes
+    free(head);
+
+    return 0;
+}
