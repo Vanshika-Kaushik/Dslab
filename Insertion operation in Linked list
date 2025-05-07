@@ -1,0 +1,160 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node {
+    int data;
+    struct Node* next;
+};
+
+// Function to print the linked list
+void printList(struct Node* n) {
+    while (n != NULL) {
+        printf(" %d ", n->data);
+        n = n->next;
+    }
+    printf("\n");
+}
+
+// Delete the first node
+void deleteFirst(struct Node** head) {
+    if (*head != NULL) {
+        struct Node* temp = *head;
+        *head = (*head)->next;
+        free(temp);
+    }
+}
+
+// Delete the last node
+void deleteLast(struct Node* head) {
+    if (head == NULL) return;
+
+    struct Node* temp = head;
+    if (temp->next == NULL) {
+        free(temp);
+        head = NULL;
+        return;
+    }
+
+    while (temp->next->next != NULL) {
+        temp = temp->next;
+    }
+
+    free(temp->next);
+    temp->next = NULL;
+}
+
+// Delete a node at a specific position
+void deleteMiddle(struct Node** head, int pos) {
+    if (*head == NULL || pos <= 0) return;
+
+    struct Node* temp = *head;
+
+    if (pos == 1) {
+        *head = temp->next;
+        free(temp);
+        return;
+    }
+
+    for (int i = 1; temp != NULL && i < pos - 1; i++) {
+        temp = temp->next;
+    }
+
+    if (temp == NULL || temp->next == NULL) return;
+
+    struct Node* nodeToDelete = temp->next;
+    temp->next = temp->next->next;
+    free(nodeToDelete);
+}
+
+// Insert at the beginning
+void insertAtBeginning(struct Node** head, int data) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->data = data;
+    newNode->next = *head;
+    *head = newNode;
+}
+
+// Insert at the end
+void insertAtEnd(struct Node** head, int data) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->data = data;
+    newNode->next = NULL;
+
+    if (*head == NULL) {
+        *head = newNode;
+        return;
+    }
+
+    struct Node* temp = *head;
+    while (temp->next != NULL) {
+        temp = temp->next;
+    }
+    temp->next = newNode;
+}
+
+// Insert at a specific position (after position-1)
+void insertAtMiddle(struct Node** head, int data, int position) {
+    if (position <= 1) {
+        insertAtBeginning(head, data);
+        return;
+    }
+
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->data = data;
+
+    struct Node* temp = *head;
+    for (int i = 2; i < position && temp->next != NULL; i++) {
+        temp = temp->next;
+    }
+
+    newNode->next = temp->next;
+    temp->next = newNode;
+}
+
+int main() {
+    struct Node* head = NULL;
+
+    // Initial List: 1 -> 2 -> 3
+    insertAtEnd(&head, 1);
+    insertAtEnd(&head, 2);
+    insertAtEnd(&head, 3);
+    printf("Original List:");
+    printList(head);
+
+    // Insert at beginning: 0 -> 1 -> 2 -> 3
+    insertAtBeginning(&head, 0);
+    printf("After inserting at beginning:");
+    printList(head);
+
+    // Insert at middle (position 3): 0 -> 1 -> 99 -> 2 -> 3
+    insertAtMiddle(&head, 99, 3);
+    printf("After inserting at position 3:");
+    printList(head);
+
+    // Insert at end: 0 -> 1 -> 99 -> 2 -> 3 -> 4
+    insertAtEnd(&head, 4);
+    printf("After inserting at end:");
+    printList(head);
+
+    // Delete first node
+    deleteFirst(&head);
+    printf("After deleting first node:");
+    printList(head);
+
+    // Delete last node
+    deleteLast(head);
+    printf("After deleting last node:");
+    printList(head);
+
+    // Delete node at position 3
+    deleteMiddle(&head, 3);
+    printf("After deleting node at position 3:");
+    printList(head);
+
+    // Free remaining nodes
+    while (head != NULL) {
+        deleteFirst(&head);
+    }
+
+    return 0;
+}
